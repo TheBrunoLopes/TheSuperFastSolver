@@ -13,12 +13,17 @@ def simple_operation(operation_type, value_a, value_b, functions_solved):
     if we already solved a specific function and get that value instead of calculating it again.
     :return: The result of an operation
     """
-    return {
-        '+': resolve_value(value_b, functions_solved) + resolve_value(value_a, functions_solved),
-        '-': resolve_value(value_b, functions_solved) - resolve_value(value_a, functions_solved),
-        '*': resolve_value(value_b, functions_solved) * resolve_value(value_a, functions_solved),
-        '/': resolve_value(value_b, functions_solved) / resolve_value(value_a, functions_solved)
-    }[operation_type]
+    if operation_type == '*':
+        return resolve_value(value_b, functions_solved) * resolve_value(value_a, functions_solved)
+    elif operation_type == '/':
+        try:
+            return resolve_value(value_b, functions_solved) / resolve_value(value_a, functions_solved)
+        except ZeroDivisionError:
+            raise ZeroDivisionError("Division by Zero", value_b+"/"+value_a)
+    elif operation_type == "+":
+        return resolve_value(value_a, functions_solved) + resolve_value(value_b, functions_solved)
+    elif operation_type == "-":
+        return resolve_value(value_a, functions_solved) - resolve_value(value_b, functions_solved)
 
 
 # This algorithm is similar to the Shunting-yard_algorithm
@@ -37,6 +42,7 @@ def calculate_expression(expression, functions_solved):
     output_stack = []
     operand_stack = []
     is_element_an_operand = False
+    # First we calculate the operators with the highest precedence ('*', '/')
     for element in expression:
         if is_element_an_operand:
             operand_stack.append(element)
@@ -46,9 +52,10 @@ def calculate_expression(expression, functions_solved):
                 operand = operand_stack.pop()
                 output_stack.append(simple_operation(operand, output_stack.pop(), output_stack.pop(), functions_solved))
         is_element_an_operand = not is_element_an_operand
+    # Now we can calculate the other operators ('+', '-')
     while len(operand_stack) != 0:
-        operand = operand_stack.pop()
-        output_stack.append(simple_operation(operand, output_stack.pop(), output_stack.pop(), functions_solved))
+        operand = operand_stack.pop(0)
+        output_stack.insert(0, simple_operation(operand, output_stack.pop(0), output_stack.pop(0), functions_solved))
     return resolve_value(output_stack[0], functions_solved)
 
 

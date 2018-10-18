@@ -17,4 +17,6 @@ def solve_function(body):
         result = calculate_expression(expression, {})
     except ValueError as err:
         return err.args[0]+" : "+err.args[1], 400
+    except ZeroDivisionError as err:
+        return err.args[0] + " : " + err.args[1], 400
     return result, 200
