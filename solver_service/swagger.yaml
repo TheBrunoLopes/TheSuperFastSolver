@@ -1,0 +1,158 @@
+swagger: "2.0"
+info:
+  description: "This service provides a solver that can calculate the numerical results for user supplied functions"
+  version: "1.0.0"
+  title: "Solver Service"
+  contact:
+    email: "brunoleonelopes@gmail.com"
+  # license:
+  #   name: "Apache 2.0"
+  #   url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/v1"
+tags:
+- name: "Admin"
+  description: "Functionalities for specifing functions"
+- name: "Solve"
+  description: "Solves a given function"
+schemes:
+- "http"
+- "https"
+paths:
+  /admin:
+    post:
+      tags:
+      - "Admin"
+      summary: "Define a new function"
+      x-swagger-router-controller: "solver_service.business.controllers.functions_controller"
+      operationId: "post_function"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Function object"
+        required: true
+        schema:
+          $ref: "#/definitions/Function"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        405:
+          description: "Invalid input"
+    get:
+      tags:
+      - "Admin"
+      summary: "Find all functions previously defined"
+      x-swagger-router-controller: "solver_service.business.controllers.functions_controller"
+      operationId: "get_functions"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Function"
+    put:
+      tags:
+      - "Admin"
+      summary: "Update an existing function"
+      description: ""
+      x-swagger-router-controller: "solver_service.business.controllers.functions_controller"
+      operationId: "update_function"
+      parameters:
+      - name: "body"
+        in: "body"
+        description: "Function object"
+        required: true
+        schema:
+          $ref: "#/definitions/Function"
+      produces:
+      - "application/json"
+      responses:
+        400:
+          description: "Invalid name supplied"
+  /admin/{name}:
+    get:
+      tags:
+      - "Admin"
+      summary: "Find function by name"
+      x-swagger-router-controller: "solver_service.business.controllers.functions_controller"
+      operationId: "get_function"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Name of the function"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Function"
+    delete:
+      tags:
+      - "Admin"
+      summary: "Deletes the definition of a function"
+      description: ""
+      x-swagger-router-controller: "solver_service.business.controllers.functions_controller"
+      operationId: "delete_function"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Name of the function"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid name supplied"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+  /:
+    post:
+      tags:
+      - "Solve"
+      summary: "Solve a function"
+      x-swagger-router-controller: "solver_service.business.controllers.solver_controller"
+      operationId: "solve_function"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Function object"
+        required: true
+        schema:
+          $ref: "#/definitions/Function"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+definitions:
+  Function:
+    type: "object"
+    required:
+    - "expression"
+    properties:
+      name:
+        type: "string"
+      expression:
+        type: "string"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
